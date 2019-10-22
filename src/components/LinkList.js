@@ -23,8 +23,6 @@ class LinkList extends Component {
 
           const linkToRender = data.links
 
-          console.log(data)
-
           return (
             <div>
               {linkToRender.map(link => <Link key={link.id} link={link} />)}
