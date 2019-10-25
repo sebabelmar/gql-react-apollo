@@ -3,6 +3,28 @@ import { withApollo } from 'react-apollo'
 import gql from 'graphql-tag'
 import Link from './Link'
 
+
+const FEED_SEARCH_QUERY = gql`
+  query Search($filter: String!) {
+    search(filter: { descriptionContains: $filter, OR: { urlContains: $filter } }) {
+      id
+      url
+      description
+      createdAt
+      postedBy {
+        id
+        name
+      }
+      votes {
+        id
+        user {
+          id
+        }
+      }
+    }
+  }
+`
+
 class Search extends Component {
 
   state = {
@@ -31,8 +53,14 @@ class Search extends Component {
   }
 
   _executeSearch = async () => {
-    // ... => here soon
+    const { filter } = this.state 
+    const result = await this.props.client.query({
+      query: FEED_SEARCH_QUERY,
+      variables: { filter }
+    })
+    const links = result.data.search
+    this.setState({ links })
   }
 }
 
-export default Search
+export default withApollo(Search)
