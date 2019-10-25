@@ -53,7 +53,7 @@ class Search extends Component {
   }
 
   _executeSearch = async () => {
-    const { filter } = this.state 
+    const { filter } = this.state
     const result = await this.props.client.query({
       query: FEED_SEARCH_QUERY,
       variables: { filter }

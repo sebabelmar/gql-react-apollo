@@ -2,24 +2,23 @@ import React, { Component } from 'react'
 import Link from './Link'
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
+import LINKS_PER_PAGE from '../constants'
 
 export const FEED_QUERY = gql`
-  {
-    feed {
-      links {
+  query SearchQuery($skip: Int, $first: Int) {
+    search(skip: $skip, first: $first) {
+      id
+      url
+      description
+      createdAt
+      postedBy {
         id
-        url
-        description
-        createdAt
-        postedBy {
+        name
+      }
+      votes {
+        id
+        user {
           id
-          name
-        }
-        votes {
-          id
-          user {
-            id
-          }
         }
       }
     }
@@ -37,14 +36,23 @@ class LinkList extends Component {
     store.writeQuery({ query: FEED_QUERY, data })
   }
 
+  _getQueryVariables = () => {
+    const isNewPage = this.props.location.pathname.includes('new')
+    const page = parseInt(this.props.match.params.page, 10)
+
+    const skip = isNewPage ? (page - 1) * LINKS_PER_PAGE : 0
+    const first = isNewPage ? LINKS_PER_PAGE : 100
+    return { first, skip }
+  }
+
   render() {
     return (
-      <Query query={FEED_QUERY}>
+      <Query query={FEED_QUERY} variables={this._getQueryVariables()}>
         {({ loading, error, data }) => {
           if (loading) return <div>Fetching</div>
           if (error) return <div>Error</div>
 
-          const linkToRender = data.feed.links
+          const linkToRender = data.search
 
           return (
             <div>
